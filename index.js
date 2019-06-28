@@ -5,7 +5,8 @@ const Promise = require ("bluebird")
 const fs = require('fs')
 const readline = require("readline")
 const program = require('commander')
-
+const path = require('path')
+const mkdirp = require('mkdirp')
 /*
 * 按行读取文件内容
 * 返回：字符串数组
@@ -21,7 +22,7 @@ function readFileToArr(fReadName){
         var arr = new Array();
         objReadline.on('line',function (line) {
             if (line != "undefined")
-                arr.unshift(line);
+                arr.push(line);
             //console.log('line:'+ line);
         }).on('close',function () {
             // console.log(arr);
@@ -43,13 +44,14 @@ program
 
 function downloadAFile(client,hash) {
     let start_time =  Date.now()
-    filename = path.join(__dirname, 'tempfiles/'+hash)
-    client.bzz
-        .downloadFileTo(filename).then(()=>{
+    mkdirp(path.join(__dirname,'tempfiles'))
+    let filename = path.join(__dirname, 'tempfiles/'+hash)
+    return client.bzz
+        .downloadFileTo(hash,filename).then(()=>{
         let end_time =  Date.now()- start_time
         const stats = fs.statSync(filename);
         const fileSizeInBytes = stats.size;
-        console.log ("Download file size:",fileSizeInBytes, "\t bandrate:",fileSizeInBytes/end_time +" kBps")
+        console.log (hash + "Download file size:",fileSizeInBytes, "\t bandrate:",fileSizeInBytes/end_time +" kBps")
     }).catch((e)=>{
      console.log("error in downloading file:",e.message)
     })
@@ -61,7 +63,7 @@ if (program.hashes_file ) {
     const client = new SwarmClient({ bzz: { url: program.bzzapi || 'http://localhost:8500' } })
     readFileToArr(program.hashes_file ).then((hashes)=>{
         console.log(" read file ok",program.hashesFile," total lines:",hashes.length)
-        return Promise.mapSeries(hashes,function (hash) {
+        return Promise.each(hashes,function (hash) {
             return downloadAFile(client,hash)
         }).then(()=>{
             console.log(" All file has been downloaded")
