@@ -7,6 +7,7 @@ const readline = require("readline")
 const program = require('commander')
 const path = require('path')
 const mkdirp = require('mkdirp')
+const {execSync} = require("child_process")
 /*
 * 按行读取文件内容
 * 返回：字符串数组
@@ -44,8 +45,8 @@ program
 
 function downloadAFile(client,hash) {
     let start_time =  Date.now()
-    mkdirp(path.join(__dirname,'tempfiles'))
-    let filename = path.join(__dirname, 'tempfiles/'+hash)
+    mkdirp(path.join(process.cwd(),'tempfiles'))
+    let filename = path.join(process.cwd(), 'tempfiles/'+hash)
     return client.bzz
         .downloadFileTo(hash,filename).then(()=>{
         let end_time =  Date.now()- start_time
@@ -62,11 +63,15 @@ if (program.hashes_file ) {
 
     const client = new SwarmClient({ bzz: { url: program.bzzapi || 'http://localhost:8500' } })
     readFileToArr(program.hashes_file ).then((hashes)=>{
-        console.log(" read file ok",program.hashesFile," total lines:",hashes.length)
+        console.log(" read file ok",program.hashes_file," total lines:",hashes.length)
         return Promise.each(hashes,function (hash) {
+            console.log(`start downloading ${hash}`)
             return downloadAFile(client,hash)
         }).then(()=>{
             console.log(" All file has been downloaded")
+        }).then(()=>{
+            tmpPath = path.join(process.cwd(),'tempfiles')
+            execSync('rm -fr ${tmpPath}')
         })
     }).catch((err)=>{
         console.log(err.message)
