@@ -26,12 +26,7 @@ fi
 #if [ "$PASSWORD" == "" ]; then echo "Password must be set, in order to use eswarm non-interactively." && exit 1; fi
 
 #mount file system first
-UUID=`sudo cat /usr/local/cdsc/diskuuid.txt`
-if [[ $UUID == "" ]]; then 
- echo "You have NO disk configurated for eswarm, please configure first with sudo createfs.sh/importfs.sh"
-else 
-      sudo umount /mnt/massdisk || true
-      sudo mount -tauto -orw -U $UUID /mnt/massdisk || true
+
 echo $PASSWORD > $DATADIR/password
 
 KEYFILE=`find $DATADIR | grep UTC | head -n 1` || true
