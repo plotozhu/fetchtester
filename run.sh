@@ -1,0 +1,50 @@
+#!/bin/bash
+#tc qdisc add dev eth0 root tbf rate 10mbps latency 50ms burst 2500
+set -o errexit
+set -o pipefail
+set -o nounset
+
+USER=$(whoami)
+#ps -ef | grep "run.sh" | awk '{print $2}' | xargs sudo kill -9 ||  true
+ps -ef | grep "cdsc/eswarm" | awk '{print $2}' | xargs sudo kill -9 || true 
+
+
+DATADIR=${DATADIR:-$1}
+PASSWORD=""
+mkdir -p $DATADIR
+if [ $# == 1 ]
+then
+for line in $(cat $DATADIR/password)
+do 
+    PASSWORD=${line}
+done
+else 
+    PASSWORD=$2
+fi
+
+
+#if [ "$PASSWORD" == "" ]; then echo "Password must be set, in order to use eswarm non-interactively." && exit 1; fi
+
+#mount file system first
+UUID=`sudo cat /usr/local/cdsc/diskuuid.txt`
+if [[ $UUID == "" ]]; then 
+ echo "You have NO disk configurated for eswarm, please configure first with sudo createfs.sh/importfs.sh"
+else 
+      sudo umount /mnt/massdisk || true
+      sudo mount -tauto -orw -U $UUID /mnt/massdisk || true
+echo $PASSWORD > $DATADIR/password
+
+KEYFILE=`find $DATADIR | grep UTC | head -n 1` || true
+if [ ! -f "$KEYFILE" ]; then echo "No keyfile found. Generating..." && /usr/local/cdsc/geth --datadir $DATADIR --password $DATADIR/password account new; fi
+KEYFILE=`find $DATADIR | grep UTC | head -n 1` || true
+if [ ! -f "$KEYFILE" ]; then echo "Could not find nor generate a BZZ keyfile." && exit 1; else echo "Found keyfile $KEYFILE"; fi
+
+VERSION=`/usr/local/cdsc/eswarm version`
+echo "Running Swarm:"
+echo $VERSION
+
+export BZZACCOUNT="`echo -n $KEYFILE | tail -c 40`" || true
+if [ "$BZZACCOUNT" == "" ]; then echo "Could not parse BZZACCOUNT from keyfile." && exit 1; fi
+# tc qdisc add dev eth0 root tbf rate 25kbps latency 50ms burst 2500
+/usr/local/cdsc/eswarm --httpaddr 0.0.0.0 --bzzaccount=$BZZACCOUNT --password $DATADIR/password --ipcpath=/home/$USER/bzzd$BZZACCOUNT.ipc --datadir $DATADIR $@ 2>&1 </dev/null
+fi 
