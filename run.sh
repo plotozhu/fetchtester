@@ -41,5 +41,6 @@ echo $VERSION
 export BZZACCOUNT="`echo -n $KEYFILE | tail -c 40`" || true
 if [ "$BZZACCOUNT" == "" ]; then echo "Could not parse BZZACCOUNT from keyfile." && exit 1; fi
 # tc qdisc add dev eth0 root tbf rate 25kbps latency 50ms burst 2500
-/usr/local/cdsc/eswarm --httpaddr 0.0.0.0 --bzzaccount=$BZZACCOUNT --password $DATADIR/password --ipcpath=/home/$USER/bzzd$BZZACCOUNT.ipc --datadir $DATADIR --nodetype 17 --store.size 1000 $@ 2>&1 </dev/null
-fi 
+echo -e " /usr/local/cdsc/eswarm  --bzzaccount=$BZZACCOUNT --password $DATADIR/password --ipcpath=/home/$USER/bzzd$BZZACCOUNT.ipc --datadir $DATADIR --nodetype 17 --store.size 1000 $@ 2>&1 </dev/null"
+/usr/local/cdsc/eswarm  --bzzaccount=$BZZACCOUNT --password $DATADIR/password --ipcpath=/home/$USER/bzzd$BZZACCOUNT.ipc --datadir $DATADIR --nodetype 17 --store.size 1000 $@ 2>&1 </dev/null
+
