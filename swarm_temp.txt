@@ -1,0 +1,1 @@
+ --bzzaccount 3d743f410aabce0f67866539021e0ec86d1898f9  --datadir "../node_light"  --port 40345 --bzzport 8503  --bzznetworkid 1279 --verbosity 3 --nodetype 17 --bootnodes.url "http://127.0.0.1" --v5disc true 
