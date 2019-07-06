@@ -48,7 +48,7 @@ function downloadAFile(client,hash) {
     mkdirp(path.join(process.cwd(),'tempfiles'))
     let filename = path.join(process.cwd(), 'tempfiles/'+hash)
     return client.bzz
-        .downloadFileTo(hash,filename).then(()=>{
+        .downloadDirectoryTo(hash,filename).then(()=>{
         let end_time =  Date.now()- start_time
         const stats = fs.statSync(filename);
         const fileSizeInBytes = stats.size;

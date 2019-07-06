@@ -1,1 +1,1 @@
-pm2  index.js -p http://localhost:8503 -h hash2.txt
+pm2 start  index.js -- -p http://localhost:18503 -h hash2.txt
