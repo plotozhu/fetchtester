@@ -6,7 +6,6 @@ set -o nounset
 
 USER=$(whoami)
 #ps -ef | grep "run.sh" | awk '{print $2}' | xargs sudo kill -9 ||  true
-ps -ef | grep "cdsc/eswarm" | awk '{print $2}' | xargs sudo kill -9 || true 
 
 
 DATADIR=${DATADIR:-$1}
@@ -42,5 +41,5 @@ export BZZACCOUNT="`echo -n $KEYFILE | tail -c 40`" || true
 if [ "$BZZACCOUNT" == "" ]; then echo "Could not parse BZZACCOUNT from keyfile." && exit 1; fi
 # tc qdisc add dev eth0 root tbf rate 25kbps latency 50ms burst 2500
 echo -e " /usr/local/cdsc/eswarm  --bzzaccount=$BZZACCOUNT --password $DATADIR/password --ipcpath=/home/$USER/bzzd$BZZACCOUNT.ipc --datadir $DATADIR --nodetype 17 --store.size 1000 $@ 2>&1 </dev/null"
-/usr/local/cdsc/eswarm  --bzzaccount=$BZZACCOUNT --password $DATADIR/password --ipcpath=/home/$USER/bzzd$BZZACCOUNT.ipc --datadir $DATADIR --nodetype 17 --store.size 1000 $@ 2>&1 </dev/null
+/usr/local/cdsc/eswarm  --bzzaccount=$BZZACCOUNT --password $DATADIR/password --port 40399 --bzzport 18503 --ipcpath=/home/$USER/bzzd$BZZACCOUNT.ipc --datadir $DATADIR --nodetype 17 --store.size 1000 $@ 2 >&1 </dev/null
 
